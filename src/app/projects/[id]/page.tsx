@@ -61,6 +61,8 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
   const [stats, setStats] = useState<Stats | null>(null)
   const [loading, setLoading] = useState(true)
   const [projectId, setProjectId] = useState('')
+  const [deleting, setDeleting] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
 
   useEffect(() => {
     params.then(({ id }) => {
@@ -91,6 +93,17 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
       <div className="text-slate-400 text-sm">Loading...</div>
     </div>
   )
+
+  async function handleDelete() {
+    setDeleting(true)
+    try {
+      const res = await fetch(`/api/projects/${projectId}`, { method: 'DELETE' })
+      if (res.ok) router.push('/projects')
+    } finally {
+      setDeleting(false)
+      setConfirmDelete(false)
+    }
+  }
 
   if (!project) return null
 
@@ -136,12 +149,20 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
               <h1 className="text-white text-2xl font-bold leading-tight">{project.projectName}</h1>
               <p className="text-slate-500 font-mono text-sm mt-1">{project.contractNumber}</p>
             </div>
-            <Link
-              href={`/projects/${projectId}/edit`}
-              className="text-slate-400 hover:text-white text-sm border border-slate-700 hover:border-slate-500 rounded-xl px-4 py-2 transition-colors"
-            >
-              Edit
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link
+                href={`/projects/${projectId}/edit`}
+                className="text-slate-400 hover:text-white text-sm border border-slate-700 hover:border-slate-500 rounded-xl px-4 py-2 transition-colors"
+              >
+                Edit
+              </Link>
+              <button
+                onClick={() => setConfirmDelete(true)}
+                className="text-red-400 hover:text-red-300 text-sm border border-red-500/30 hover:border-red-500/60 rounded-xl px-4 py-2 transition-colors"
+              >
+                Delete
+              </button>
+            </div>
           </div>
 
           {/* Project info grid */}
@@ -240,9 +261,50 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
               color="teal"
             />
 
+            <ModuleCard
+              href={`/projects/${projectId}/testing/compression`}
+              icon="🧱"
+              title="Compression Test Log"
+              description="Concrete cylinder breaks — Master + Compressive Strength log with all field data"
+              color="orange"
+            />
+
           </div>
         </div>
       </main>
+
+      {/* Delete confirmation modal */}
+      {confirmDelete && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-800 border border-slate-700 rounded-2xl p-6 max-w-md w-full">
+            <h2 className="text-white font-bold text-lg mb-2">Delete Project?</h2>
+            <p className="text-slate-400 text-sm mb-2">
+              This will permanently delete <span className="text-white font-medium">{project.projectName}</span> and all associated data:
+            </p>
+            <ul className="text-slate-500 text-xs space-y-1 mb-6 list-disc list-inside">
+              <li>All spec books, sections, and requirements</li>
+              <li>All submittals and pre-work plans</li>
+              <li>All schedule activities, EVR entries, and compression test logs</li>
+            </ul>
+            <p className="text-red-400 text-xs font-medium mb-6">This cannot be undone.</p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setConfirmDelete(false)}
+                className="px-4 py-2 text-sm text-slate-400 hover:text-white border border-slate-700 hover:border-slate-500 rounded-xl transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={deleting}
+                className="px-4 py-2 text-sm bg-red-600 hover:bg-red-500 disabled:opacity-50 text-white font-semibold rounded-xl transition-colors"
+              >
+                {deleting ? 'Deleting...' : 'Yes, Delete Project'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

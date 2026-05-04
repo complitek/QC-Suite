@@ -91,7 +91,7 @@ async function seed() {
   let project: typeof schema.projects.$inferSelect
 
   const existing = await db.select().from(schema.projects)
-    .where(eq(schema.projects.contractNumber, 'N62742-24-C-4471'))
+    .where(eq(schema.projects.contractNumber, 'N32078-26-C-1953'))
 
   if (existing.length > 0) {
     project = existing[0]
@@ -99,14 +99,14 @@ async function seed() {
   } else {
     ;[project] = await db.insert(schema.projects).values({
       companyId: company.id,
-      contractNumber: 'N62742-24-C-4471',
+      contractNumber: 'N32078-26-C-1953',
       projectName: 'Naval Station Neverland New Dry Dock 1 Construction',
       projectIdShort: 'NSN-DD1',
       agency: 'NAVFAC',
       contractType: 'HYBRID',
       isHybrid: true,
       primeContractor: 'Lost Boys Construction',
-      location: 'Pearl Harbor, HI',
+      location: 'Neverland Harbor, HI',
       state: 'HI',
       awardDate: '2024-03-15',
       completionDate: '2028-09-30',

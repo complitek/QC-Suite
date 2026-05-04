@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server'
 import { eq, and } from 'drizzle-orm'
 import { db } from '@/lib/db'
-import { projects, specBooks, specSections, specRequirements, submittals, preworkPlans, ahaPlans, scheduleActivities } from '@/lib/db/schema'
+import { projects, specBooks, specSections, specRequirements, submittals, preworkPlans, ahaPlans, scheduleActivities, evrEntries, deliverables, documentFiles } from '@/lib/db/schema'
 import { getSession } from '@/lib/session'
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -92,7 +92,16 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
 
   if (!existing) return Response.json({ error: 'Not found' }, { status: 404 })
 
-  await db.update(projects).set({ status: 'COMPLETE' }).where(eq(projects.id, id))
+  // Delete in FK-safe order; specBooks/concretePours cascade from projects
+  await db.delete(evrEntries).where(eq(evrEntries.projectId, id))
+  await db.delete(scheduleActivities).where(eq(scheduleActivities.projectId, id))
+  await db.delete(deliverables).where(eq(deliverables.projectId, id))
+  await db.delete(submittals).where(eq(submittals.projectId, id))
+  await db.delete(specRequirements).where(eq(specRequirements.projectId, id))
+  await db.delete(documentFiles).where(eq(documentFiles.projectId, id))
+  await db.delete(preworkPlans).where(eq(preworkPlans.projectId, id))
+  await db.delete(ahaPlans).where(eq(ahaPlans.projectId, id))
+  await db.delete(projects).where(eq(projects.id, id))
 
   return Response.json({ ok: true })
 }

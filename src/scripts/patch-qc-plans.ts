@@ -11,7 +11,7 @@ const db = drizzle(sql, { schema })
 
 async function main() {
   const [project] = await db.select().from(schema.projects)
-    .where(eq(schema.projects.contractNumber, 'N62742-24-C-4471'))
+    .where(eq(schema.projects.contractNumber, 'N32078-26-C-1953'))
   if (!project) { console.log('Project not found'); return }
 
   // Remove the single combined QC Plan stub

@@ -104,6 +104,7 @@ export default function SpecsPage({ params }: { params: Promise<{ id: string }> 
   const [loading, setLoading] = useState(true)
 
   // UI state
+  const [projectId, setProjectId] = useState('')
   const [selectedBookId, setSelectedBookId] = useState<string | 'all'>('all')
   const [selectedSection, setSelectedSection] = useState<SpecSection | null>(null)
   const [search, setSearch] = useState('')
@@ -116,6 +117,7 @@ export default function SpecsPage({ params }: { params: Promise<{ id: string }> 
 
   useEffect(() => {
     params.then(({ id }) => {
+      setProjectId(id)
       fetch('/api/auth/me')
         .then(r => r.json())
         .then(data => {
@@ -226,6 +228,12 @@ export default function SpecsPage({ params }: { params: Promise<{ id: string }> 
               <h1 className="text-white text-2xl font-bold">Spec Sections</h1>
               <p className="text-slate-400 text-sm mt-1">{sections.length} sections · {requirements.length} requirements</p>
             </div>
+            <Link
+              href={`/projects/${projectId}/specs/upload`}
+              className="flex items-center gap-2 bg-yellow-500 hover:bg-yellow-400 text-slate-900 font-semibold text-sm px-4 py-2.5 rounded-xl transition-colors"
+            >
+              + Upload Spec Book
+            </Link>
           </div>
 
           <div className="flex gap-6">
